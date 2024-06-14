@@ -6,6 +6,7 @@ close all
 obs = rinexread("Data\YONS00KOR_R_20241650000_01H_01S_MO.rnx");
 obs_info = rinexinfo("Data\YONS00KOR_R_20241650000_01H_01S_MO.rnx");
 nav = rinexread("Data\YONS00KOR_R_20241650000_01H_01S_MN.rnx");
+nav_info = rinexinfo("Data\YONS00KOR_R_20241650000_01H_01S_MN.rnx");
 
 
 ref_pos = [-3047506.741 4043980.58 3865243.01];
@@ -42,7 +43,7 @@ for i = 1:epoch
     % BeiDou
     idx = obs.BeiDou.Time == Data_OBS.date(i);
     sat = obs.BeiDou.SatelliteID(idx);
-    BeiDou_pseudorange_temp = obs.BeiDou.C2I(idx);
+    BeiDou_pseudorange_temp = obs.BeiDou.C1X(idx);
     for j = 1:length(sat)
         Data_OBS.pseudorange(i,61+sat(j)) = BeiDou_pseudorange_temp(j);
     end
@@ -113,7 +114,7 @@ for j = 1:5
         PRN   = data_obs.SatelliteID(eph_t);             % Check satellite number (PRN)
         date = Data_OBS.date(i);
         if sat_sys == "BeiDou"
-            ps = data_obs.C2I(eph_t);
+            ps = data_obs.C1X(eph_t);
         elseif sat_sys == "Galileo"
             ps = data_obs.C1X(eph_t);
         else
@@ -124,6 +125,7 @@ for j = 1:5
         satclock = nan(length(PRN),1);
 
         % GLONASS 제외
+        % if j == 2 || j == 3
         if j == 2
             continue
         end
@@ -138,13 +140,6 @@ for j = 1:5
             if sat_sys == "GPS"
                 sat_pos.GPS(i,3*PRN(ii)-2:3*PRN(ii)) = satpos(ii,1:3);
                 sat_clock.GPS(i,PRN(ii)) = satclock(ii);
-                % use_nav_true = find(nav.GPS.SatelliteID == PRN(ii));
-                % if isempty(use_nav_true)
-                %     continue;
-                % else
-                %     [true_sat_pos.GPS(i,3*PRN(ii)-2:3*PRN(ii)),~,~] = gnssconstellation(Data_OBS.date(i)-seconds(18),nav.GPS(use_nav_true(1),:));
-                % end
-
             elseif sat_sys == "GLONASS"
                 sat_pos.GLONASS(i,3*PRN(ii)-2:3*PRN(ii)) = satpos(ii,1:3);
                 sat_clock.GLONASS(i,PRN(ii)) = satclock(ii);
@@ -208,7 +203,6 @@ elseif use_GNSS == "All"
     pseudorange_value = Data_OBS.pseudorange;
     sat_pos_value = sat_pos.All;
     sat_clock_value = sat_clock.All;
-%     sat_pos_value = Satpos;
 end
 
 user_pose_init = [0 0 0 0]';
