@@ -82,15 +82,14 @@ end
 
 %% Calculate satellite position and Clock bias
 
-% if ~any(Toe < SOW)
-%     satpos = nan(1,3);
-%     satclock = nan(1,1);
-%     return;
-% end
+if ~any(Toe <= SOW)
+    satpos = nan(1,3);
+    satclock = nan(1,1);
+    return;
+end
 
 % Find correct ephemerides
-[~,col] = min(abs(SOW-Toe));           % Use closest Toe
-% [~,col] = max(abs(SOW-Toe));         % Use last Toe
+[~,col] = (min(abs(SOW-Toe)));           % Use closest Toe
 
 tr = ps/c;
 TOS = SOW - tr;    % Transition time correction

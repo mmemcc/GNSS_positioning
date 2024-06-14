@@ -122,7 +122,8 @@ for j = 1:5
 
         satpos = nan(length(PRN),3);
         satclock = nan(length(PRN),1);
-        
+
+        % GLONASS 제외
         if j == 2
             continue
         end
@@ -181,18 +182,15 @@ sat_clock.All(:,121:129) = sat_clock.QZSS;
 %% Positining
 wgs84 = wgs84Ellipsoid('meter');
 
-use_GNSS = "GPS";
+use_GNSS = "All";
 
 if use_GNSS == "GPS"
     pseudorange_value = Data_OBS.pseudorange(:,1:32);
     sat_pos_value = sat_pos.GPS;
-    % sat_pos_value = true_sat_pos.GPS;
-    % sat_pos_value = Satpos;
     sat_clock_value = sat_clock.GPS;
 elseif use_GNSS == "GLONASS"
     pseudorange_value = Data_OBS.pseudorange(:,38:61);
     sat_pos_value = sat_pos.GLONASS;
-%     sat_pos_value = Satpos(:,38*3-2:61*3);
     sat_clock_value = sat_clock.GLONASS;
 elseif use_GNSS == "BeiDou"
     pseudorange_value = Data_OBS.pseudorange(:,62:90);
